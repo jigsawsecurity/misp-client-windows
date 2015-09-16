@@ -1,0 +1,7 @@
+This is the open source version of the MISP client
+
+This version provides network monitoring and domain monitoring
+as well as file checking to include process name checking. 
+
+This software only detects issues it does not block the 
+traffic. 

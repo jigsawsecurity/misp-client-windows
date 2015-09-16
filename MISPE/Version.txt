@@ -1,0 +1,18 @@
+MISP Client Open Source Version
+
+Package Includes:
+Network Monitoring
+File Checking
+Process Checking
+MISP Integration
+Network Traffic Monitoring
+
+
+Additional Features Available in the commercial option:
+Syslog Module
+Cloud Submission of Malware Samples
+Signature and Non Signature Based IDS
+Submission of Log Files for Analysis
+Email Notifications
+Detailed Logging Module
+MD5 Hash Checking Module

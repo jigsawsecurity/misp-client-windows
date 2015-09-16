@@ -1,0 +1,672 @@
+EXTERNAL VDSIPP.DLL,751118615004|ISP Toolz
+#DEFINE COMMAND, INTERNET
+#DEFINE FUNCTION, INTERNET
+list create,5
+%%logfile = @path(%0)logs\@datetime(mm-dd-yyyy hhnnss)".log"
+
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Killing any old processes that may exist"
+killtask netwatch.exe
+killtask netwatch.exe
+killtask netwatch.exe
+killtask pmonitor.exe
+killtask pmonitor.exe
+killtask pmonitor.exe
+killtask pscheck.exe
+killtask pscheck.exe
+killtask pscheck.exe
+
+option msgevent,$000000A1,WM_NCLBUTTONDOWN
+option msgevent,$000000A4,WM_NCRBUTTONDOWN
+option scale,96
+
+
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)":Checking Settings..."
+INIFILE OPEN,@path(%0)settings\settings.ini
+%%mispserverurl = @iniread(settings,mispserverurl)
+%%popupalert = @iniread(settings,popupalert)
+%%key = @iniread(settings,key)
+INIFILE CLOSE
+
+
+external string
+#DEFINE FUNCTION,STRING
+
+TITLE "MISP Open Source Client"
+
+
+  DIALOG CREATE,MISP Open Source Client,-1,0,511,230
+REM *** Modified by Dialog Designer on 9/15/2015 - 15:45 ***
+  DIALOG ADD,STYLE,BOLD,,,B,,
+  DIALOG ADD,GROUP,StatusGroup,172,8,495,47,Client Status and Operational Messages
+  DIALOG ADD,TEXT,TEXT1,192,22,,,JIGSAW HIDS Client Version 3.2.3,Operational Status,BOLD
+  DIALOG ADD,MENU,File,Update Indicators,Clear Display,Review Log,Shutdown
+  DIALOG ADD,MENU,Operations,Update Indicators,Check Monitors,Restart Monitors,Submit Malware Sample to Cloud,Submit Logs for Analysis
+  DIALOG ADD,MENU,Config,Turn Off Popup Alerts,Turn On Popup Alerts
+  DIALOG ADD,MENU,Help,Documentation,Module Information
+  DIALOG ADD,check,minCK,30,3000,180,18,Mininize to system tray,1
+  DIALOG ADD,TIME,TIME1,186,414,83,24
+  DIALOG ADD,GROUP,NET,5,443,59,168,Network
+  DIALOG ADD,LEVEL,LEVEL1,24,448,49,124,0
+  DIALOG ADD,GROUP,Activity,2,3,436,172,Activity
+  DIALOG ADD,LIST,LIST1,18,9,426,149
+  DIALOG ADD,TEXT,NETL,154,451
+  DIALOG SHOW
+  list add,list1,"MISP HIDS Open Source Version 3.0"
+  list add,list1,"Written and Developed by Jigsaw Security Enterprise Inc & Kevin E. Wetzel"
+
+dialog set,text1,Starting Timers and Submodules
+timer START,1,CTDOWN,00-00:00:10
+wait 2
+
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)":Starting Network Monitors..."
+list add,list1,Starting Network Monitors
+shell open,@path(%0)netwatch.exe
+wait 1
+
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)":Checking Process Monitors..."
+list add,list1,Checking Process Monitors
+wait 1
+shell open,@path(%0)pscheck.exe
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)":Checking Files on Disk Monitors..."
+list add,list1,Checking File Hashes Monitors
+wait 2
+
+%%dlg0 = @winexists(MISP Open Source Client)
+
+
+
+list clear,list1
+list add,list1,"Monitoring System Security"
+  
+:WM_NCLBUTTONDOWN
+  rem Non-standard window behaviors should be user optional
+  If @dlgtext(minCK)
+    rem Test if window status is 2 = iconized / hide taskbar button
+    rem info @msgparams(WL)
+    if @equal(@winpos(%%dlg0,S),2)
+      dialog hide
+      dialog add,taskicon,TiconRestore,,Restore
+    end
+  End  
+  goto evloop
+
+  
+:Evloop
+  wait event
+  goto @event()
+  
+  
+
+:writelogs
+list savefile,5,%%logfile
+exit
+
+:TiconRestoreCLICK
+  dialog remove,TiconRestore
+  dialog show
+  window activate,%%dlg0
+  goto evloop
+
+
+  
+:Clear DisplayMENU
+list clear,list1
+goto evloop
+
+
+  
+:Review LogMENU
+dialog set,text1,Client Reviewing Log Files
+wait 1
+list add,list1,"Client review of logs"
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Client review of logs"
+file delete,@path(%0)logtemp.txt
+file copy,%%logfile,@path(%0)logtemp.txt
+shell open,@path(%0)logtemp.txt
+goto evloop
+
+:Turn On Popup AlertsMENU
+dialog set,text1,Popup Alerts Enabled
+inifile open,@path(%0)settings\settings.ini
+inifile write,settings,popupalert,1
+inifile close
+list add,list1,Popup Alerts Enabled
+dialog set,text1,Popup Alerts Enabled
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Popup Alerts Enabled by User"
+  gosub writelogs
+goto evloop
+
+:Turn Off Popup AlertsMENU
+dialog set,text1,Popup Alerts Disabled
+inifile open,@path(%0)settings\settings.ini
+inifile write,settings,popupalert,0
+inifile close
+list add,list1,Popup Alerts Disabled
+dialog set,text1,Popup Alerts Disabled
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Popup Alerts Disabled by User"
+  gosub writelogs
+goto evloop
+
+
+:Update IndicatorsMENU
+dialog set,text1,Updating Indicators
+wait 1
+list add,list1,Restarting Netwatch and Downloading New Indicators
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": User request new indicators"
+  gosub writelogs
+killtask netwatch.exe
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Updating and Restarting Network Watcher"
+  gosub writelogs
+shell open,@path(%0)netwatch.exe
+list add,list1,Indicators Updated and Netwatch Restarted
+wait 1
+goto evloop
+
+
+
+
+:TIMER1CTDOWN
+TIMER stop,1
+INIFILE OPEN,@path(%0)settings\threat.ini
+%%threat = @iniread(settings,threat)
+%%message = @iniread(settings,message)
+inifile write,settings,message,
+inifile write,settings,threat,
+INIFILE CLOSE
+if @null(%%threat)
+goto skipit
+end
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": ALERT - "%%threat %%message
+list add,list1,"ALERT: "%%message
+  gosub writelogs
+file delete,@path(%0)cache\netcheck.txt
+wait 1
+:skipit
+runh cmd.exe /C netstat.exe -n > @path(%0)cache\netcheck.txt,wait
+list create,8
+list loadfile,8,@path(%0)cache\netcheck.txt
+%%nets = @count(8)
+list close,8
+if @null(%%nets)
+goto nextone
+end
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": "%%nets" connections open on system"
+dialog set,text1,"Network Traffic shows "%%nets" connections open"
+file delete,@path(%0)cache\netcheck.txt
+dialog set,netl,%%nets
+dialog set,level1,0
+if @greater(%%nets,50)
+dialog set,level1,5
+end
+if @greater(%%nets,100)
+dialog set,level1,10
+end
+if @greater(%%nets,111)
+dialog set,level1,11
+end
+if @greater(%%nets,112)
+dialog set,level1,11
+end
+if @greater(%%nets,113)
+dialog set,level1,11
+end
+if @greater(%%nets,114)
+dialog set,level1,11
+end
+if @greater(%%nets,115)
+dialog set,level1,11
+end
+if @greater(%%nets,116)
+dialog set,level1,11
+end
+if @greater(%%nets,117)
+dialog set,level1,11
+end
+if @greater(%%nets,118)
+dialog set,level1,11
+end
+if @greater(%%nets,119)
+dialog set,level1,11
+end
+if @greater(%%nets,120)
+dialog set,level1,11
+end
+if @greater(%%nets,121)
+dialog set,level1,12
+end
+if @greater(%%nets,122)
+dialog set,level1,12
+end
+if @greater(%%nets,123)
+dialog set,level1,12
+end
+if @greater(%%nets,124)
+dialog set,level1,12
+end
+if @greater(%%nets,125)
+dialog set,level1,12
+end
+if @greater(%%nets,126)
+dialog set,level1,12
+end
+if @greater(%%nets,127)
+dialog set,level1,13
+end
+if @greater(%%nets,128)
+dialog set,level1,13
+end
+if @greater(%%nets,129)
+dialog set,level1,13
+end
+if @greater(%%nets,130)
+dialog set,level1,13
+end
+if @greater(%%nets,131)
+dialog set,level1,14
+end
+if @greater(%%nets,132)
+dialog set,level1,14
+end
+if @greater(%%nets,133)
+dialog set,level1,14
+end
+if @greater(%%nets,134)
+dialog set,level1,14
+end
+if @greater(%%nets,135)
+dialog set,level1,15
+end
+if @greater(%%nets,136)
+dialog set,level1,15
+end
+if @greater(%%nets,137)
+dialog set,level1,15
+end
+if @greater(%%nets,138)
+dialog set,level1,15
+end
+if @greater(%%nets,139)
+dialog set,level1,15
+end
+if @greater(%%nets,140)
+dialog set,level1,15
+end
+if @greater(%%nets,141)
+dialog set,level1,15
+end
+if @greater(%%nets,142)
+dialog set,level1,16
+end
+if @greater(%%nets,143)
+dialog set,level1,16
+end
+if @greater(%%nets,144)
+dialog set,level1,16
+end
+if @greater(%%nets,145)
+dialog set,level1,17
+end
+if @greater(%%nets,146)
+dialog set,level1,18
+end
+if @greater(%%nets,147)
+dialog set,level1,18
+end
+if @greater(%%nets,148)
+dialog set,level1,18
+end
+if @greater(%%nets,149)
+dialog set,level1,18
+end
+if @greater(%%nets,150)
+dialog set,level1,18
+end
+if @greater(%%nets,151)
+dialog set,level1,19
+end
+if @greater(%%nets,152)
+dialog set,level1,19
+end
+if @greater(%%nets,153)
+dialog set,level1,19
+end
+if @greater(%%nets,154)
+dialog set,level1,19
+end
+if @greater(%%nets,155)
+dialog set,level1,19
+end
+if @greater(%%nets,156)
+dialog set,level1,19
+end
+if @greater(%%nets,157)
+dialog set,level1,19
+end
+if @greater(%%nets,158)
+dialog set,level1,19
+end
+if @greater(%%nets,159)
+dialog set,level1,19
+end
+if @greater(%%nets,160)
+dialog set,level1,20
+end
+if @greater(%%nets,161)
+dialog set,level1,20
+end
+if @greater(%%nets,162)
+dialog set,level1,20
+end
+if @greater(%%nets,163)
+dialog set,level1,20
+end
+if @greater(%%nets,164)
+dialog set,level1,21
+end
+if @greater(%%nets,165)
+dialog set,level1,21
+end
+if @greater(%%nets,166)
+dialog set,level1,21
+end
+if @greater(%%nets,167)
+dialog set,level1,21
+end
+if @greater(%%nets,168)
+dialog set,level1,22
+end
+if @greater(%%nets,169)
+dialog set,level1,22
+end
+if @greater(%%nets,170)
+dialog set,level1,22
+end
+if @greater(%%nets,171)
+dialog set,level1,23
+end
+if @greater(%%nets,172)
+dialog set,level1,23
+end
+if @greater(%%nets,173)
+dialog set,level1,24
+end
+if @greater(%%nets,174)
+dialog set,level1,24
+end
+if @greater(%%nets,175)
+dialog set,level1,24
+end
+if @greater(%%nets,176)
+dialog set,level1,25
+end
+if @greater(%%nets,177)
+dialog set,level1,25
+end
+if @greater(%%nets,178)
+dialog set,level1,25
+end
+if @greater(%%nets,179)
+dialog set,level1,25
+end
+if @greater(%%nets,180)
+dialog set,level1,26
+end
+if @greater(%%nets,181)
+dialog set,level1,26
+end
+if @greater(%%nets,182)
+dialog set,level1,26
+end
+if @greater(%%nets,183)
+dialog set,level1,26
+end
+if @greater(%%nets,184)
+dialog set,level1,27
+end
+if @greater(%%nets,185)
+dialog set,level1,27
+end
+if @greater(%%nets,186)
+dialog set,level1,27
+end
+if @greater(%%nets,187)
+dialog set,level1,28
+end
+if @greater(%%nets,188)
+dialog set,level1,28
+end
+if @greater(%%nets,189)
+dialog set,level1,29
+end
+if @greater(%%nets,190)
+dialog set,level1,29
+end
+if @greater(%%nets,191)
+dialog set,level1,29
+end
+if @greater(%%nets,192)
+dialog set,level1,29
+end
+if @greater(%%nets,193)
+dialog set,level1,29
+end
+if @greater(%%nets,194)
+dialog set,level1,29
+end
+if @greater(%%nets,195)
+dialog set,level1,30
+end
+if @greater(%%nets,196)
+dialog set,level1,30
+end
+if @greater(%%nets,197)
+dialog set,level1,30
+end
+if @greater(%%nets,198)
+dialog set,level1,30
+end
+if @greater(%%nets,199)
+dialog set,level1,30
+end
+if @greater(%%nets,200)
+dialog set,level1,31
+end
+if @greater(%%nets,201)
+dialog set,level1,32
+end
+if @greater(%%nets,210)
+dialog set,level1,33
+end
+if @greater(%%nets,220)
+dialog set,level1,34
+end
+if @greater(%%nets,230)
+dialog set,level1,35
+end
+if @greater(%%nets,240)
+dialog set,level1,36
+end
+if @greater(%%nets,250)
+dialog set,level1,38
+end
+if @greater(%%nets,260)
+dialog set,level1,40
+end
+if @greater(%%nets,270)
+dialog set,level1,42
+end
+if @greater(%%nets,280)
+dialog set,level1,44
+end
+if @greater(%%nets,300)
+dialog set,level1,46
+end
+if @greater(%%nets,310)
+dialog set,level1,48
+end
+if @greater(%%nets,320)
+dialog set,level1,50
+end
+if @greater(%%nets,330)
+dialog set,level1,52
+end
+if @greater(%%nets,340)
+dialog set,level1,54
+end
+if @greater(%%nets,350)
+dialog set,level1,56
+end
+if @greater(%%nets,360)
+dialog set,level1,58
+end
+if @greater(%%nets,370)
+dialog set,level1,60
+end
+if @greater(%%nets,380)
+dialog set,level1,62
+end
+if @greater(%%nets,400)
+dialog set,level1,64
+end
+if @greater(%%nets,500)
+dialog set,level1,70
+end
+if @greater(%%nets,600)
+dialog set,level1,75
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": ALERT - High Network Traffic Level Detected with "%%nets" connections open"
+list add,list1,"ALERT: High Number of Network Connections:"%%nets
+  gosub writelogs
+end
+if @greater(%%nets,700)
+dialog set,level1,80
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": ALERT - High Network Traffic Level Detected with "%%nets" connections open"
+list add,list1,"ALERT: High Number of Network Connections:"%%nets
+  gosub writelogs
+end
+if @greater(%%nets,800)
+dialog set,level1,90
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": ALERT - High Network Traffic Level Detected with "%%nets" connections open"
+list add,list1,"ALERT: High Number of Network Connections:"%%nets
+  gosub writelogs
+end
+if @greater(%%nets,1000)
+dialog set,level1,95
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": ALERT - High Network Traffic Level Detected with "%%nets" connections open"
+list add,list1,"ALERT: High Number of Network Connections:"%%nets
+  gosub writelogs
+end
+if @greater(%%nets,1200)
+dialog set,level1,100
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": ALERT - High Network Traffic Level Detected with "%%nets" connections open"
+list add,list1,"ALERT: High Number of Network Connections:"%%nets
+  gosub writelogs
+end
+:nextone
+file delete,@path(%0)cache\netcheck.txt
+wait 1
+timer START,1,CTDOWN,0-00:00:10
+dialog set,text1,Network Traffic Level %%nets
+goto evloop
+
+:Module InformationMENU
+shell open,@path(%0)help\Overview.html
+goto evloop
+
+:DocumentationMENU
+shell open,@path(%0)help\Help.html
+goto evloop
+
+
+:shutdownMENU
+dialog set,text1,Shutting Down by User Request
+wait 2
+:ExitMENU
+:Close
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)":Shutdown Command Received"
+list close,5
+killtask netwatch.exe
+killtask netwatch.exe
+killtask netwatch.exe
+killtask pmonitor.exe
+killtask pmonitor.exe
+killtask pmonitor.exe
+killtask pscheck.exe
+killtask pscheck.exe
+killtask pscheck.exe
+killtask netstat.exe
+killtask netstat.exe
+list add,list1,"Killing Processes...Including Commandline Commands for Security"
+file delete,@path(%0)badfiles.txt
+file delete,@path(%0)badprocs.txt
+file delete,@path(%0)ipdst.txt
+file delete,@path(%0)ipsrc.txt
+file delete,@path(%0)domain.txt
+file delete,@path(%0)cache\files.txt
+file delete,@path(%0)cache\net.txt
+file delete,@path(%0)cache\procs.txt
+file delete,@path(%0)cache\filelist.txt
+file delete,@path(%0)cache\mdbatch.txt
+file delete,@path(%0)cache\mdcheck.bat
+file delete,@path(%0)md5.txt
+list add,list1,"Deleting Temporary Files"
+wait 1
+stop
+exit
+
+:Check MonitorsMENU
+dialog set,text1,Checking Submodules...
+wait 2
+file delete,@path(%0)cache\mon.txt
+runh cmd.exe /C tasklist >> @path(%0)cache\mon.txt,wait
+if @string(FileOps, HoldsString,@path(%0)cache\mon.txt,,netwatch.exe,,,)
+list add,list1,"Checked Network Monitor - OK"
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Network Monitor Check - OK"
+end
+if @string(FileOps, HoldsString,@path(%0)cache\mon.txt,,pmonitor.exe,,,)
+list add,list1,"Checked Filesystem Monitoring - OK"
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Filesystem Monitor Check - OK"
+end
+if @string(FileOps, HoldsString,@path(%0)cache\mon.txt,,pscheck.exe,,,)
+list add,list1,"Checked Running Process Monitoring - OK"
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Running Process Check - OK"
+end
+
+
+if @not(@string(FileOps, HoldsString,@path(%0)cache\mon.txt,,netwatch.exe,,,))
+list add,list1,"Checked Network Monitor - ERROR - Network Monitor Not Running Restarting"
+shell open,@path(%0)netwatch.exe
+end
+if @not(@string(FileOps, HoldsString,@path(%0)cache\mon.txt,,pmonitor.exe,,,))
+list add,list1,"Checked Filesystem Monitoring - ERROR - Restarting PMonitor"
+shell open,@path(%0)pmonitor.exe
+end
+if @not(@string(FileOps, HoldsString,@path(%0)cache\mon.txt,,pscheck.exe,,,))
+list add,list1,"Checked Running Process Monitoring - ERROR - Restarting PSCheck"
+shell open,@path(%0)pscheck.exe
+end
+file delete,@path(%0)cache\mon.txt
+goto evloop
+
+
+
+
+:Restart MonitorsMENU
+dialog set,text1,Restarting Monitors
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Restarting Monitors by User Request"
+killtask netwatch.exe
+killtask netwatch.exe
+wait 1
+killtask pmonitor.exe
+killtask pmonitor.exe
+wait 1
+killtask pscheck.exe
+killtask pscheck.exe
+wait 1
+shell open,@path(%0)netwatch.exe
+shell open,@path(%0)pmonitor.exe
+shell open,@path(%0)pscheck.exe
+list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Restarted Monitors by User Request"
+  list add,list1,"Restarted Monitors by User Request"
+goto evloop
+
+

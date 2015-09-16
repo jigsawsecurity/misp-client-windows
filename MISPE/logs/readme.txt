@@ -1,0 +1,1 @@
+This directory stores log files and this file may be safely deleted
