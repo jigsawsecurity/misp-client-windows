@@ -1,11 +1,11 @@
-EXTERNAL VDSIPP.DLL,751118615004|ISP Toolz
+EXTERNAL VDSIPP.DLL,APIKEY
 #DEFINE COMMAND, INTERNET
 #DEFINE FUNCTION, INTERNET
 
 external string
 #DEFINE FUNCTION,STRING
 
-Title "SLC Security HIDS Process Checking"
+Title "Jigsaw Security HIDS Process Checking"
 
 %%logfile = @path(%0)logs\@datetime(mm-dd-yyyy hhnnss)"-processmonitor.log"
 list create,5
@@ -27,7 +27,7 @@ file delete,@path(%0)badfiles.txt
   INTERNET HTTP,HEADER,1,%%key
   INTERNET HTTP,THREADS,1,OFF
   INTERNET HTTP,PROTOCOL,1,1
-  INTERNET HTTP,USERAGENT,1,"SLC Security HIDS Client File Protection Module"
+  INTERNET HTTP,USERAGENT,1,"Jigsaw Security HIDS Client File Protection Module"
   list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Downloading Filename Threats from "%%mispserverurl
   INTERNET HTTP,DOWNLOAD,1,%%url,@path(%0)badfiles.txt
   INTERNET HTTP,DESTROY,1

@@ -1,3 +1,5 @@
+Version 3.2.3 rev1
+
 MISP Client Open Source Version
 
 Package Includes:

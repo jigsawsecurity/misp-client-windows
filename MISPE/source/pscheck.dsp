@@ -1,9 +1,9 @@
 [Compiler]
 InfoVersion=1
-IconFile=#lib\slclogo.ICO
+IconFile=C:\Github\misp-client-windows\MISPE\lib\slclogo.ICO
 CompanyName=Jigsaw Security Enterprise
 FileDescription=Utility to monitor processes
-FileVersion=3.1.6.27
+FileVersion=3.1.6.28
 LegalCopyright=Copyright © 2015 Jigsaw Security Enterprise
 OriginalFilename=pscheck.exe
 ProductName=Jigsaw Hids Process Checker

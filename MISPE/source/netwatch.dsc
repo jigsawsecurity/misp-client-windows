@@ -18,6 +18,11 @@ INIFILE OPEN,@path(%0)settings\settings.ini
 %%syslogserver = @iniread(settings,syslogserver)
 %%mispserverurl = @iniread(settings,mispserverurl)
 %%popupalert = @iniread(settings,popupalert)
+%%proxy = @iniread(settings,proxy)
+%%proxyport = @iniread(settings,proxyport)
+%%proxyusername = @iniread(settings,proxyusername)
+%%proxypassword = @iniread(settings,proxypassword)
+%%proxyversion = @iniread(settings,proxyversion)
 INIFILE CLOSE
 
 
@@ -33,6 +38,9 @@ INIFILE CLOSE
   INTERNET HTTP,HEADER,1,%%key
   INTERNET HTTP,THREADS,1,OFF
   INTERNET HTTP,PROTOCOL,1,1
+  if @equal(%%proxy,1)
+  INTERNET HTTP,PROXY,1,%%proxyserverurl,%%proxyport,%%proxyusername,%%proxypassword,%%proxyversion
+  end
   INTERNET HTTP,USERAGENT,1,"Jigsaw Security HIDS Client Network Module"
   list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Downloading IP Source Threats from "%%mispserverurl
   INTERNET HTTP,DOWNLOAD,1,%%url,@path(%0)ipsrc.txt
@@ -43,6 +51,9 @@ INIFILE CLOSE
   INTERNET HTTP,HEADER,1,%%key
   INTERNET HTTP,THREADS,1,OFF
   INTERNET HTTP,PROTOCOL,1,1
+  if @equal(%%proxy,1)
+  INTERNET HTTP,PROXY,1,%%proxyserverurl,%%proxyport,%%proxyusername,%%proxypassword,%%proxyversion
+  end
   INTERNET HTTP,USERAGENT,1,"Jigsaw Security HIDS Client Network Module"
   list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Downloading IP Destination Threats from "%%mispserverurl
   INTERNET HTTP,DOWNLOAD,1,%%url,@path(%0)ipdst.txt
@@ -53,6 +64,9 @@ INIFILE CLOSE
   INTERNET HTTP,HEADER,1,%%key
   INTERNET HTTP,THREADS,1,OFF
   INTERNET HTTP,PROTOCOL,1,1
+  if @equal(%%proxy,1)
+  INTERNET HTTP,PROXY,1,%%proxyserverurl,%%proxyport,%%proxyusername,%%proxypassword,%%proxyversion
+  end
   INTERNET HTTP,USERAGENT,1,"Jigsaw Security HIDS Client Network Module"
   list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Downloading Domain Threats from "%%mispserverurl
   INTERNET HTTP,DOWNLOAD,1,%%url,@path(%0)domain.txt

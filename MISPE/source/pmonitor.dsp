@@ -1,9 +1,9 @@
 [Compiler]
-IconFile=#lib\slclogo.ICO
+IconFile=C:\Github\misp-client-windows\MISPE\lib\slclogo.ICO
 InfoVersion=1
 CompanyName=Jigsaw Security Enterprise Inc
 FileDescription=A utility to monitor malicious runtimes
-FileVersion=3.4.1.12
+FileVersion=3.4.1.13
 LegalCopyright=Copyright © 2015 Jigsaw Security Enterprise
 OriginalFilename=pmonitor.exe
 ProductName=Jigsaw HIDS Process Checker
@@ -15,7 +15,7 @@ Commands=INTERNET
 Functions=@INTERNET,@STRING
 [Project]
 Main File=#pmonitor.dsc
-tl_Main File=9
+tl_Main File=8
 DS Version=5.0
 Other File 1=
 [BM_pmonitor]

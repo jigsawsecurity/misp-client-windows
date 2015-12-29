@@ -5,3 +5,14 @@ as well as file checking to include process name checking.
 
 This software only detects issues it does not block the 
 traffic. 
+
+To use a proxy follow the following directions. 
+
+Edit the settings.ini file
+Set proxy=1 - This turns on the proxy feature
+Set the hostname, port, username, password and version (see Below)
+
+Proxy Version Setting:
+0 - specifies SOCKS Version 4
+1 - specifies SOCKS Version 4A
+2 - specifies SOCKS Version 5

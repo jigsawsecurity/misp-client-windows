@@ -25,6 +25,11 @@ INIFILE OPEN,@path(%0)settings\settings.ini
 %%mispserverurl = @iniread(settings,mispserverurl)
 %%popupalert = @iniread(settings,popupalert)
 %%key = @iniread(settings,key)
+%%proxy = @iniread(settings,proxy)
+%%proxyport = @iniread(settings,proxyport)
+%%proxyusername = @iniread(settings,proxyusername)
+%%proxypassword = @iniread(settings,proxypassword)
+%%proxyversion = @iniread(settings,proxyversion)
 INIFILE CLOSE
 
 
@@ -670,5 +675,5 @@ list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Restarted Monitors by User Re
 goto evloop
 
 :AboutMENU
-info "JIGSAW SECURITY HIDS MODULE"@cr()"OPEN SOURCE VERSION 3.0"@cr()@cr()"A commercial version is available through"@cr()"Jigsaw Security Enterprise"@cr()@cr()"Written and Developed by Jigsaw Security Enterprise"
+info "JIGSAW SECURITY HIDS MODULE"@cr()"OPEN SOURCE VERSION 3.0 rev1"@cr()@cr()"A commercial version is available through"@cr()"Jigsaw Security Enterprise"@cr()@cr()"Written and Developed by Jigsaw Security Enterprise"
 goto evloop

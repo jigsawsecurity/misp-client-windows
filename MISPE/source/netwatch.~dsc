@@ -1,11 +1,11 @@
-EXTERNAL VDSIPP.DLL,751118615004|ISP Toolz
+EXTERNAL VDSIPP.DLL,APIKEY
 #DEFINE COMMAND, INTERNET
 #DEFINE FUNCTION, INTERNET
 
 external string
 #DEFINE FUNCTION,STRING
 
-TITLE "SLC HIDS Netwatch Protection"
+TITLE "Jigsaw HIDS Netwatch Protection"
 
 %%logfile = @path(%0)logs\@datetime(mm-dd-yyyy hhnnss)"-netthreats.log"
 list create,5
@@ -18,6 +18,11 @@ INIFILE OPEN,@path(%0)settings\settings.ini
 %%syslogserver = @iniread(settings,syslogserver)
 %%mispserverurl = @iniread(settings,mispserverurl)
 %%popupalert = @iniread(settings,popupalert)
+%%proxy = @iniread(settings,proxy)
+%%proxyport = @iniread(settings,proxyport)
+%%proxyusername = @iniread(settings,proxyusername)
+%%proxypassword = @iniread(settings,proxypassword)
+%%proxyversion = @iniread(settings,proxyversion)
 INIFILE CLOSE
 
 
@@ -33,7 +38,10 @@ INIFILE CLOSE
   INTERNET HTTP,HEADER,1,%%key
   INTERNET HTTP,THREADS,1,OFF
   INTERNET HTTP,PROTOCOL,1,1
-  INTERNET HTTP,USERAGENT,1,"SLC Security HIDS Client Network Module"
+  if @equal(%%proxy,1)
+  INTERNET HTTP,PROXY,1,%%proxyserverurl,%%proxyport,%%proxyusername,%%proxypassword,%%proxyversion
+  end
+  INTERNET HTTP,USERAGENT,1,"Jigsaw Security HIDS Client Network Module"
   list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Downloading IP Source Threats from "%%mispserverurl
   INTERNET HTTP,DOWNLOAD,1,%%url,@path(%0)ipsrc.txt
   INTERNET HTTP,DESTROY,1
@@ -43,7 +51,10 @@ INIFILE CLOSE
   INTERNET HTTP,HEADER,1,%%key
   INTERNET HTTP,THREADS,1,OFF
   INTERNET HTTP,PROTOCOL,1,1
-  INTERNET HTTP,USERAGENT,1,"SLC Security HIDS Client Network Module"
+  if @equal(%%proxy,1)
+  INTERNET HTTP,PROXY,1,%%proxyserverurl,%%proxyport,%%proxyusername,%%proxypassword,%%proxyversion
+  end
+  INTERNET HTTP,USERAGENT,1,"Jigsaw Security HIDS Client Network Module"
   list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Downloading IP Destination Threats from "%%mispserverurl
   INTERNET HTTP,DOWNLOAD,1,%%url,@path(%0)ipdst.txt
   INTERNET HTTP,DESTROY,1
@@ -53,7 +64,10 @@ INIFILE CLOSE
   INTERNET HTTP,HEADER,1,%%key
   INTERNET HTTP,THREADS,1,OFF
   INTERNET HTTP,PROTOCOL,1,1
-  INTERNET HTTP,USERAGENT,1,"SLC Security HIDS Client Network Module"
+  if @equal(%%proxy,1)
+  INTERNET HTTP,PROXY,1,%%proxyserverurl,%%proxyport,%%proxyusername,%%proxypassword,%%proxyversion
+  end
+  INTERNET HTTP,USERAGENT,1,"Jigsaw Security HIDS Client Network Module"
   list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Downloading Domain Threats from "%%mispserverurl
   INTERNET HTTP,DOWNLOAD,1,%%url,@path(%0)domain.txt
   INTERNET HTTP,DESTROY,1
@@ -103,7 +117,7 @@ INIFILE OPEN,@path(%0)settings\settings.ini
 %%popupalert = @iniread(settings,popupalert)
 INIFILE CLOSE
 if @equal(%%popupalert,1)
-info "A threat has been detected by the SLC Security Host Intrusion Detection System. This computer "%%hostname" attempted to connect to a known bad location "%%ioc" which is considered malicious. Please visit "%%mispserverurl" for additional information concerning this threat or call your IT support personnel and provide this information so they can determine what threat exist on the network."@cr()@cr()"SLC Security Host Intrusion Version "%%version"."
+info "A threat has been detected by the Jigsaw Security Host Intrusion Detection System. This computer "%%hostname" attempted to connect to a known bad location "%%ioc" which is considered malicious. Please visit "%%mispserverurl" for additional information concerning this threat or call your IT support personnel and provide this information so they can determine what threat exist on the network."@cr()@cr()"Jigsaw Security Host Intrusion Version "%%version"."
 end
 end
 %%now = @succ(%%now)
@@ -124,7 +138,7 @@ inifile write,settings,message,Threat communicated to Malicious location %%ioc
 inifile close
 list savefile,5,%%logfile
 if @equal(%%popupalert,1)
-info "A threat has been detected by the SLC Security Host Intrusion Detection System. This computer "%%hostname" attempted to connect to a known bad location "%%ioc" which is considered malicious. Please visit "%%mispserverurl" for additional information concerning this threat or call your IT support personnel and provide this information so they can determine what threat exist on the network."@cr()@cr()"SLC Security Host Intrusion Version "%%version"."
+info "A threat has been detected by the Jigsaw Security Host Intrusion Detection System. This computer "%%hostname" attempted to connect to a known bad location "%%ioc" which is considered malicious. Please visit "%%mispserverurl" for additional information concerning this threat or call your IT support personnel and provide this information so they can determine what threat exist on the network."@cr()@cr()"Jigsaw Security Host Intrusion Version "%%version"."
 end
 end
 %%now = @succ(%%now)
@@ -145,7 +159,7 @@ inifile write,settings,message,Threat communicated to Malicious location %%ioc
 inifile close
 list savefile,5,%%logfile
 if @equal(%%popupalert,1)
-info "A threat has been detected by the SLC Security Host Intrusion Detection System. This computer "%%hostname" attempted to connect to a known bad location "%%ioc" which is considered malicious. Please visit "%%mispserverurl" for additional information concerning this threat or call your IT support personnel and provide this information so they can determine what threat exist on the network."@cr()@cr()"SLC Security Host Intrusion Version "%%version"."
+info "A threat has been detected by the Jigsaw Security Host Intrusion Detection System. This computer "%%hostname" attempted to connect to a known bad location "%%ioc" which is considered malicious. Please visit "%%mispserverurl" for additional information concerning this threat or call your IT support personnel and provide this information so they can determine what threat exist on the network."@cr()@cr()"Jigsaw Security Host Intrusion Version "%%version"."
 end
 end
 %%now = @succ(%%now)

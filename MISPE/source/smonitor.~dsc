@@ -1,4 +1,4 @@
-EXTERNAL VDSIPP.DLL,751118615004|ISP Toolz
+EXTERNAL VDSIPP.DLL,APIKEY
 #DEFINE COMMAND, INTERNET
 #DEFINE FUNCTION, INTERNET
 list create,5
@@ -25,6 +25,11 @@ INIFILE OPEN,@path(%0)settings\settings.ini
 %%mispserverurl = @iniread(settings,mispserverurl)
 %%popupalert = @iniread(settings,popupalert)
 %%key = @iniread(settings,key)
+%%proxy = @iniread(settings,proxy)
+%%proxyport = @iniread(settings,proxyport)
+%%proxyusername = @iniread(settings,proxyusername)
+%%proxypassword = @iniread(settings,proxypassword)
+%%proxyversion = @iniread(settings,proxyversion)
 INIFILE CLOSE
 
 
@@ -40,9 +45,9 @@ REM *** Modified by Dialog Designer on 9/15/2015 - 15:45 ***
   DIALOG ADD,GROUP,StatusGroup,172,8,495,47,Client Status and Operational Messages
   DIALOG ADD,TEXT,TEXT1,192,22,,,JIGSAW HIDS Client Version 3.2.3,Operational Status,BOLD
   DIALOG ADD,MENU,File,Update Indicators,Clear Display,Review Log,Shutdown
-  DIALOG ADD,MENU,Operations,Update Indicators,Check Monitors,Restart Monitors,Submit Malware Sample to Cloud,Submit Logs for Analysis
+  DIALOG ADD,MENU,Operations,Update Indicators,Check Monitors,Restart Monitors
   DIALOG ADD,MENU,Config,Turn Off Popup Alerts,Turn On Popup Alerts
-  DIALOG ADD,MENU,Help,Documentation,Module Information
+  DIALOG ADD,MENU,Help,About
   DIALOG ADD,check,minCK,30,3000,180,18,Mininize to system tray,1
   DIALOG ADD,TIME,TIME1,186,414,83,24
   DIALOG ADD,GROUP,NET,5,443,59,168,Network
@@ -669,4 +674,6 @@ list add,5,@datetime(dd-mmm-yyyy hh:nn:ss am/pm)": Restarted Monitors by User Re
   list add,list1,"Restarted Monitors by User Request"
 goto evloop
 
-
+:AboutMENU
+info "JIGSAW SECURITY HIDS MODULE"@cr()"OPEN SOURCE VERSION 3.0 rev1"@cr()@cr()"A commercial version is available through"@cr()"Jigsaw Security Enterprise"@cr()@cr()"Written and Developed by Jigsaw Security Enterprise"
+goto evloop

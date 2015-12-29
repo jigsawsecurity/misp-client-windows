@@ -1,10 +1,10 @@
 [Compiler]
-IconFile=#lib\slclogo.ICO
+IconFile=C:\Github\misp-client-windows\MISPE\lib\slclogo.ICO
 InfoVersion=1
 Include Manifest=1
 CompanyName=Jigsaw Security Enterprise Inc
 FileDescription=Jigsaw Network Monitoring
-FileVersion=3.2.3.8
+FileVersion=3.2.3.10
 LegalCopyright=Copyright © 2015 Jigsaw Security Enterprise Inc
 OriginalFilename=netwatch.exe
 ProductName=Jigsaw Network Watch Monitor
@@ -15,7 +15,7 @@ Commands=INTERNET
 Functions=@INTERNET,@STRING
 [Project]
 Main File=#netwatch.dsc
-tl_Main File=90
+tl_Main File=140
 DS Version=5.0
 Other File 1=
 [BM_netwatch]
